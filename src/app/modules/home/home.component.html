@@ -2,8 +2,42 @@
   <div class="col-12">
     <div class="flex justify-content-center align-content-center text-align-center">
       <form action="">
-        <p-card>
-
+        <p-card *ngIf="loginCard"
+          styleClass="mt-10"
+          header="login"
+          subheader="Faça Login com sua conta existente!">
+          <div class="flex justify-content-center align-content-center text-align-center">
+            <input type="email" pInputText placeholder="Email">
+          </div>
+          <div class="flex justify-content-center align-content-center text-align-center mt-3">
+            <input type="password" pInputText placeholder="Senha">
+          </div>
+          <div class="card flex justify-content-center mt-3">
+            <button type="submit" pButton pRipple label="Login"></button>
+          </div>
+          <span class="flex justify-content-center align-content-center text-align-center mt-3 text-red-600 font-semibold"
+          (click)="loginCard = !loginCard"  style="cursor: pointer;">Criar Conta</span>
+        </p-card>
+      </form>
+      <form action="">
+        <p-card *ngIf="!loginCard"
+          styleClass="mt-10"
+          header="Criar Conta"
+          subheader="Crie já a sua conta gratuita">
+          <div class="flex justify-content-center align-content-center text-align-center">
+            <input type="text" pInputText placeholder="Nome">
+          </div>
+          <div class="flex justify-content-center align-content-center text-align-center mt-3">
+            <input type="email" pInputText placeholder="Email">
+          </div>
+          <div class="flex justify-content-center align-content-center text-align-center mt-3">
+            <input type="password" pInputText placeholder="Senha">
+          </div>
+          <div class="card flex justify-content-center mt-3">
+            <button type="submit" pButton pRipple label="Criar Conta"></button>
+          </div>
+          <span class="flex justify-content-center align-content-center text-align-center mt-3 text-red-600 font-semibold"
+          (click)="loginCard = !loginCard" style="cursor: pointer;">Fazer Login</span>
         </p-card>
       </form>
     </div>
