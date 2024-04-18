@@ -22,6 +22,7 @@ import { ToastModule } from 'primeng/toast';
     BrowserAnimationsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    ReactiveFormsModule,
     // Importações do PrimeNG
     CardModule,
     InputTextModule,
