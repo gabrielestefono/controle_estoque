@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
 import { Observable } from 'rxjs';
+
 import { AuthRequest } from 'src/app/models/interfaces/user/auth/auth-request.interface';
 import { AuthResponse } from 'src/app/models/interfaces/user/auth/auth-response.interface';
 import { SignUpUserRequest } from 'src/app/models/interfaces/user/sign-up-user-request.interface';
@@ -17,11 +19,11 @@ export class UserService {
 
   signUpUser(requestData: SignUpUserRequest): Observable<SignUpUserResponse>
   {
-    return this.http.post<SignUpUserResponse>(`${this.api_url}/user`, {requestData});
+    return this.http.post<SignUpUserResponse>(`${this.api_url}/user`, requestData);
   }
 
   authUser(requestData: AuthRequest): Observable<AuthResponse>
   {
-    return this.http.post<AuthResponse>(`${this.api_url}/auth`, {requestData});
+    return this.http.post<AuthResponse>(`${this.api_url}/auth`, requestData);
   }
 }
