@@ -1,3 +1,4 @@
+import { ProductsDataTransferService } from './../../../../shared/services/products/products-data-transfer.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
@@ -7,6 +8,9 @@ import { CategoriesService } from 'src/app/services/categories/categories.servic
 import { GetCategoriesResponse } from 'src/app/models/interfaces/categories/responses/get-categories-response.interface';
 import { MessageService } from 'primeng/api';
 import { CreateProductRequest } from 'src/app/models/interfaces/products/request/create-product-request.interface';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { EventAction } from 'src/app/models/interfaces/products/events/event-action';
+import { GetAllProductsResponse } from 'src/app/models/interfaces/products/response/get-all-products-response.interface';
 
 @Component({
   selector: 'app-product-form',
@@ -14,15 +18,25 @@ import { CreateProductRequest } from 'src/app/models/interfaces/products/request
 })
 export class ProductFormComponent implements OnInit, OnDestroy{
   constructor(
-    private categoriesService: CategoriesService,
-    private formBuilder: FormBuilder,
-    private messageService: MessageService,
-    private router: Router,
-    private productsService: ProductsService,
+    private readonly categoriesService: CategoriesService,
+    private readonly formBuilder: FormBuilder,
+    private readonly messageService: MessageService,
+    private readonly router: Router,
+    private readonly productsService: ProductsService,
+    private readonly ref: DynamicDialogConfig,
+    private readonly productsDataTransferService: ProductsDataTransferService
   ){}
-  private readonly destroy$: Subject<void> = new Subject();
+
+  private destroy$: Subject<void> = new Subject();
   public categoriesData: Array<GetCategoriesResponse> = [];
   public selectedCategory: Array<{name: string, code: string}> = [];
+  public productSelectedData!: GetAllProductsResponse;
+  public productsData!: Array<GetAllProductsResponse>;
+
+  public productAction!: {
+    event: EventAction,
+    productData: Array<GetAllProductsResponse>
+  };
 
   public addProductForm = this.formBuilder.group({
     name: ["", Validators.required],
@@ -32,7 +46,16 @@ export class ProductFormComponent implements OnInit, OnDestroy{
     amount: [0, Validators.required],
   });
 
+  public editProductForm = this.formBuilder.group({
+    name: ["", Validators.required],
+    price: ["", Validators.required],
+    description: ["", Validators.required],
+    category_id: ["", Validators.required],
+    amount: [0, Validators.required],
+  });
+
   ngOnInit(): void {
+    this.productAction = this.ref.data;
     this.getAllCategories();
   }
 
@@ -85,6 +108,49 @@ export class ProductFormComponent implements OnInit, OnDestroy{
         });
         this.addProductForm.reset();
     }
+  }
+
+  handleSubmitEditProduct(): void
+  {
+    if(this.editProductForm?.valid && this.editProductForm?.value){
+
+    }
+  }
+
+  getProductSelectedData(productId: string): void
+  {
+    const allProducts = this.productAction?.productData;
+    if(allProducts.length > 0){
+      const productFiltered = allProducts.filter(element => element?.id === productId);
+
+      if(productFiltered){
+        this.productSelectedData = productFiltered[0];
+
+        this.editProductForm.setValue({
+          name: this.productSelectedData?.name,
+          price: this.productSelectedData?.price,
+          amount: this.productSelectedData?.amount,
+          description: this.productSelectedData?.description,
+          category_id: this.productSelectedData?.category.name,
+        })
+      }
+    }
+  }
+
+  getProductData(): void
+  {
+    this.productsService.getAllProducts()
+      .pipe(
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: response => {
+          if(response.length > 0){
+            this.productsData = response;
+            this.productsData && this.productsDataTransferService.setProductsData(this.productsData);
+          }
+        }
+      })
   }
 
   ngOnDestroy(): void {

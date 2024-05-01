@@ -3,7 +3,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProductsDataTransferService } from 'src/app/shared/services/products/products-data-transfer.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, take, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { GetAllProductsResponse } from 'src/app/models/interfaces/products/response/get-all-products-response.interface';
 import { EventAction } from 'src/app/models/interfaces/products/events/event-action';

@@ -1,3 +1,4 @@
+import { EditProductRequest } from './../../models/interfaces/products/request/edit-product-request.interface';
 import { CreateProductRequest } from './../../models/interfaces/products/request/create-product-request.interface';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -47,13 +48,12 @@ export class ProductsService {
     );
   }
 
-  createProduct(
-    createProductRequest: CreateProductRequest
-  ): Observable<CreateProductResponse> {
-    return this.http.post<CreateProductResponse>(
-      `${this.API_URL}/product`,
-      createProductRequest,
-      this.httpOption
-    );
+  createProduct(createProductRequest: CreateProductRequest): Observable<CreateProductResponse> {
+    return this.http.post<CreateProductResponse>(`${this.API_URL}/product`,createProductRequest,this.httpOption);
+  }
+
+  editProduct(editProductRequest:EditProductRequest): Observable<void>
+  {
+    return this.http.put<void>(`${this.API_URL}/product/edit`,editProductRequest,this.httpOption);
   }
 }
