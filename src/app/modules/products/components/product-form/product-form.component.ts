@@ -11,6 +11,8 @@ import { CreateProductRequest } from 'src/app/models/interfaces/products/request
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { EventAction } from 'src/app/models/interfaces/products/events/event-action';
 import { GetAllProductsResponse } from 'src/app/models/interfaces/products/response/get-all-products-response.interface';
+import { ProductEvent } from 'src/app/models/enums/products/product-event';
+import { EditProductRequest } from 'src/app/models/interfaces/products/request/edit-product-request.interface';
 
 @Component({
   selector: 'app-product-form',
@@ -32,10 +34,13 @@ export class ProductFormComponent implements OnInit, OnDestroy{
   public selectedCategory: Array<{name: string, code: string}> = [];
   public productSelectedData!: GetAllProductsResponse;
   public productsData!: Array<GetAllProductsResponse>;
+  public addProductAction = ProductEvent.ADD_PRODUCT_EVENT;
+  public editProductAction = ProductEvent.EDIT_PRODUCT_EVENT;
+  public saleProductAction = ProductEvent.SALE_PRODUCT_EVENT;
 
   public productAction!: {
     event: EventAction,
-    productData: Array<GetAllProductsResponse>
+    productsData: Array<GetAllProductsResponse>
   };
 
   public addProductForm = this.formBuilder.group({
@@ -56,6 +61,10 @@ export class ProductFormComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.productAction = this.ref.data;
+    if(this.productAction?.event?.action == this.editProductAction && this.productAction.productsData){
+      this.getProductSelectedData(this.productAction?.event?.id as string);
+    }
+    this.productAction?.event?.action === this.saleProductAction && this.getProductData();
     this.getAllCategories();
   }
 
@@ -112,14 +121,43 @@ export class ProductFormComponent implements OnInit, OnDestroy{
 
   handleSubmitEditProduct(): void
   {
-    if(this.editProductForm?.valid && this.editProductForm?.value){
+    if(this.editProductForm?.valid && this.editProductForm?.value && this.productAction.event.id){
+      const requestEditProduct: EditProductRequest = {
+        name: this.editProductForm.value.name as string,
+        amount: this.editProductForm.value.amount as number,
+        description: this.editProductForm.value.description as string,
+        price: this.editProductForm.value.price as string,
+        product_id: this.productAction.event.id,
+      }
 
+      this.productsService.editProduct(requestEditProduct)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: "success",
+              summary: "Sucesso!",
+              detail: "Produto Editado com Sucesso!",
+              life: 2500,
+            })
+            this.editProductForm.reset();
+          },
+          error: error => {
+            console.log(error);
+            this.messageService.add({
+              severity: "error",
+              summary: "SuErrocesso!",
+              detail: "Erro ao editar produto!",
+              life: 2500,
+            })
+          },
+        })
     }
   }
 
   getProductSelectedData(productId: string): void
   {
-    const allProducts = this.productAction?.productData;
+    const allProducts = this.productAction?.productsData;
     if(allProducts.length > 0){
       const productFiltered = allProducts.filter(element => element?.id === productId);
 
