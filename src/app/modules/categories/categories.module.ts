@@ -21,11 +21,13 @@ import { CardModule } from 'primeng/card';
 import { CategoriesHomeComponent } from './page/categories-home.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { CATEGORIES_ROUTES } from './categories.routing';
+import { CategoriesTableComponent } from './components/categories-table/categories-table.component';
 
 
 @NgModule({
   declarations: [
     CategoriesHomeComponent,
+    CategoriesTableComponent,
   ],
   imports: [
     CommonModule,
