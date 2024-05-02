@@ -37,6 +37,7 @@ export class ProductFormComponent implements OnInit, OnDestroy{
   public addProductAction = ProductEvent.ADD_PRODUCT_EVENT;
   public editProductAction = ProductEvent.EDIT_PRODUCT_EVENT;
   public saleProductAction = ProductEvent.SALE_PRODUCT_EVENT;
+  public renderDropDown: boolean = false;
 
   public productAction!: {
     event: EventAction,
@@ -61,11 +62,10 @@ export class ProductFormComponent implements OnInit, OnDestroy{
 
   ngOnInit(): void {
     this.productAction = this.ref.data;
-    if(this.productAction?.event?.action == this.editProductAction && this.productAction.productsData){
-      this.getProductSelectedData(this.productAction?.event?.id as string);
-    }
+
     this.productAction?.event?.action === this.saleProductAction && this.getProductData();
     this.getAllCategories();
+    this.renderDropDown = true;
   }
 
   getAllCategories(){
@@ -75,6 +75,9 @@ export class ProductFormComponent implements OnInit, OnDestroy{
         next: response => {
           if(response && response.length > 0){
             this.categoriesData = response
+            if(this.productAction?.event?.action == this.editProductAction && this.productAction.productsData){
+              this.getProductSelectedData(this.productAction?.event?.id as string);
+            }
           }
         },
       })
@@ -128,6 +131,7 @@ export class ProductFormComponent implements OnInit, OnDestroy{
         description: this.editProductForm.value.description as string,
         price: this.editProductForm.value.price as string,
         product_id: this.productAction.event.id,
+        category_id: this.editProductForm.value.category_id as string,
       }
 
       this.productsService.editProduct(requestEditProduct)
@@ -169,7 +173,7 @@ export class ProductFormComponent implements OnInit, OnDestroy{
           price: this.productSelectedData?.price,
           amount: this.productSelectedData?.amount,
           description: this.productSelectedData?.description,
-          category_id: this.productSelectedData?.category.name,
+          category_id: this.productSelectedData?.category?.id,
         })
       }
     }
