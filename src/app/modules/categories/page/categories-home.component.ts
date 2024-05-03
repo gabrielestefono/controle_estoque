@@ -1,11 +1,13 @@
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CategoriesService } from 'src/app/services/categories/categories.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { GetCategoriesResponse } from 'src/app/models/interfaces/categories/responses/get-categories-response.interface';
 import { DeleteCategoryAction } from 'src/app/models/interfaces/categories/event/delete-category-action.interface';
+import { EventAction } from 'src/app/models/interfaces/products/events/event-action';
+import { CategoryFormComponent } from '../components/category-form/category-form.component';
 
 @Component({
   selector: 'app-categories-home',
@@ -21,6 +23,7 @@ export class CategoriesHomeComponent implements OnInit, OnDestroy{
   ){}
 
   private destroy$: Subject<void> = new Subject();
+  private ref!: DynamicDialogRef;
   public categoriesData: Array<GetCategoriesResponse> = [];
 
   ngOnInit(): void {
@@ -71,27 +74,47 @@ export class CategoriesHomeComponent implements OnInit, OnDestroy{
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
+          this.getAllCategories();
           this.messageService.add({
             severity: "success",
             summary: "Sucesso!",
             detail: "Categoria removida com sucesso!",
             life: 3000,
           })
-          this.getAllCategories();
         },
         error: error => {
           console.log(error);
+          this.getAllCategories();
           this.messageService.add({
             severity: 'error',
             summary: "Erro!",
             detail: "Erro ao deletar categoria",
             life: 2500,
           });
-          this.getAllCategories();
         }
       })
     }
     this.getAllCategories();
+  }
+
+  handleCategoryAction(event: EventAction): void
+  {
+    if(event){
+      this.ref = this.dialogService.open(CategoryFormComponent, {
+        header: event.action,
+        width: '70%',
+        contentStyle: {overflow: 'auto'},
+        baseZIndex: 10000,
+        maximizable: true,
+        data: {
+          event
+        },
+      })
+      this.ref.onClose.pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.getAllCategories(),
+      })
+    }
   }
 
   ngOnDestroy(): void {

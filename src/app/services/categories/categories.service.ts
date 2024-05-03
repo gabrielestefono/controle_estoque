@@ -40,4 +40,9 @@ export class CategoriesService {
       },
     })
   }
+
+  createNewCategory(requestData: { name: string}): Observable<Array<GetCategoriesResponse>>
+  {
+    return this.http.post<Array<GetCategoriesResponse>>(`${this.API_URL}/category`, requestData, this.httpOptions);
+  }
 }
