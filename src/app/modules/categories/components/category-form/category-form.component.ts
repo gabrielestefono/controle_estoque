@@ -14,6 +14,7 @@ import { EditCategoryAction } from 'src/app/models/interfaces/categories/event/e
 export class CategoryFormComponent implements OnInit, OnDestroy{
   constructor(
     private readonly formBuilder: FormBuilder,
+    private readonly ref: DynamicDialogConfig,
     private readonly messageService: MessageService,
     private readonly categoriesService: CategoriesService,
     private readonly dynamicDialogConfig: DynamicDialogConfig,
@@ -30,7 +31,11 @@ export class CategoryFormComponent implements OnInit, OnDestroy{
   })
 
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
+    this.categoryAction = this.ref.data;
+
+    if(this.categoryAction.event.action === this.editCategoryAction && this.categoryAction.event.category_name != null || undefined){
+      this.setCategoryName(this.categoryAction.event.category_name as string);
+    }
   }
 
   handleSubmitAddCategory(): void
@@ -65,7 +70,56 @@ export class CategoryFormComponent implements OnInit, OnDestroy{
         }
       })
     };
+  }
 
+  handleSubmitCategoryAction(): void
+  {
+    if(this.categoryAction.event.action === this.addCategoryAction){
+      this.handleSubmitAddCategory()
+    }else if(this.categoryAction.event.action === this.editCategoryAction){
+      this.handleSubmitEditCategory()
+    }
+  }
+
+  setCategoryName(category_name: string): void
+  {
+    if(category_name){
+      this.categoryForm.setValue({
+        name: category_name,
+      });
+    }
+  }
+
+  handleSubmitEditCategory(): void
+  {
+    if(this.categoryForm.value && this.categoryForm.valid && this.categoryAction.event.id){
+      const requestEditCategory: {name: string, category_id: string}= {
+        name: this.categoryForm.value.name as string,
+        category_id: this.categoryAction.event.id,
+      }
+      this.categoriesService.editCategoryName(requestEditCategory)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.categoryForm.reset()
+            this.messageService.add({
+              severity: "success",
+              summary: "Sucesso!",
+              detail: "Categoria editada com sucesso!",
+              life: 3000,
+            })
+          },
+          error: (error) => {
+            console.log(error);
+            this.messageService.add({
+              severity: 'error',
+              summary: "Erro!",
+              detail: "Erro ao editar categoria",
+              life: 2500,
+            });
+          }
+        })
+    }
   }
 
   ngOnDestroy(): void {
